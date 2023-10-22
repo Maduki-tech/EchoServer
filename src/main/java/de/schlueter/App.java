@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class App {
   public static void main(String[] args) {
 
+    // Create Server on port 8080
     try (ServerSocket serverSocket = new ServerSocket(8080)) {
       System.out.println("Server is listening on port 8080");
       while (true) {
@@ -22,7 +24,6 @@ public class App {
         String line;
         int contentLength = -1;
 
-        System.out.println("Request: ");
         while (!(line = in.readLine())
                     .isEmpty()) { // Headers end with an empty line
           System.out.println(line);
@@ -40,17 +41,17 @@ public class App {
           System.out.println("Body: " + body);
         }
 
-        String responseBody = "You sent: " + body;
         String responseHeaders = "HTTP/1.1 200 OK\r\n"
-                                 + "Content-Type: text/plain\r\n"
-                                 + "Content-Length: " + responseBody.length() +
+                                 + "Content-Type: application/json\r\n"
+                                 + "Content-Length: " + body.getBytes().length +
                                  "\r\n\r\n";
 
         output.write(responseHeaders.getBytes());
-        output.write(responseBody.getBytes());
+        output.write(body.getBytes());
 
-        System.out.println("Request end");
         socket.close();
+        output.close();
+        in.close();
       }
     } catch (IOException e) {
       e.printStackTrace();
